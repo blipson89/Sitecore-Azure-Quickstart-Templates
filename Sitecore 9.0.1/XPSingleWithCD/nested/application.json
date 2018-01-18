@@ -5,6 +5,7 @@
     "webApiVersion": "2016-03-01",
     "searchApiVersion": "2015-08-19",
     "searchPreviewApiVersion": "2015-02-28-preview",
+    "redisApiVersion": "2016-04-01",
     "applicationInsightsApiVersion": "2015-05-01",
     "sqlServerFqdnTidy": "[trim(toLower(parameters('sqlServerFqdn')))]",
     "coreSqlDatabaseNameTidy": "[toLower(trim(parameters('coreSqlDatabaseName')))]",
@@ -19,10 +20,108 @@
     "messagingSqlDatabaseNameTidy": "[toLower(trim(parameters('messagingSqlDatabaseName')))]",
     "singleWebAppNameTidy": "[toLower(trim(parameters('singleWebAppName')))]",
     "xcSingleWebAppNameTidy": "[toLower(trim(parameters('xcSingleWebAppName')))]",
+    "cdWebAppNameTidy": "[toLower(trim(parameters('cdWebAppName')))]",
     "searchServiceNameTidy": "[toLower(trim(parameters('searchServiceName')))]",
-    "applicationInsightsNameTidy": "[toLower(trim(parameters('applicationInsightsName')))]"
+    "applicationInsightsNameTidy": "[toLower(trim(parameters('applicationInsightsName')))]",
+    "redisCacheNameTidy": "[toLower(trim(parameters('redisCacheName')))]"
   },
   "parameters": {
+    "allowInvalidClientCertificates": {
+      "type": "bool",
+      "defaultValue": false
+    },
+    "applicationInsightsName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-ai')]"
+    },
+    "authCertificateThumbprint": {
+      "type": "string",
+      "minLength": 8,
+      "defaultValue": "[parameters('infrastructure').authCertificateThumbprint]"
+    },
+    "cdMsDeployPackageUrl": {
+      "type": "securestring",
+      "minLength": 1
+    },
+    "cdWebAppName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-cd')]"
+    },
+    "coreSqlDatabaseName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-core-db')]"
+    },
+    "coreSqlDatabasePassword": {
+      "type": "securestring",
+      "minLength": 8,
+      "defaultValue": "[concat(toUpper(uniqueString('core', parameters('passwordSalt'))), uniqueString('core', parameters('sqlServerPassword'), parameters('passwordSalt')), toUpper(uniqueString('core', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), '4@')]"
+    },
+    "coreSqlDatabaseUserName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "coreuser"
+    },
+    "deploymentId": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "disablePrefetchCachingMsDeployPackageUrl": {
+      "type": "securestring",
+      "minLength": 1,
+      "defaultValue": " "
+    },
+    "exmAuthenticationKey": {
+      "type": "securestring",
+      "minLength": 64,
+      "defaultValue": "[toUpper(replace(concat(guid(uniqueString('exmAuthenticationKey', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), guid(uniqueString('exmAuthenticationKey', parameters('sqlServerPassword'), parameters('passwordSalt')))), '-',''))]"
+    },
+    "exmCryptographicKey": {
+      "type": "securestring",
+      "minLength": 64,
+      "defaultValue": "[toUpper(replace(concat(guid(uniqueString('exmCryptographicKey', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), guid(uniqueString('exmCryptographicKey', parameters('sqlServerPassword'), parameters('passwordSalt')))), '-',''))]"
+    },
+    "exmEdsProvider": {
+      "type": "string",
+      "minLength": 1,
+      "allowedValues": [
+        "CustomSMTP",
+        "EmailCloud"
+      ],
+      "defaultValue": "CustomSMTP"
+    },
+    "exmMasterSqlDatabaseName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-exmmaster-db')]"
+    },
+    "exmMasterSqlDatabasePassword": {
+      "type": "securestring",
+      "minLength": 8,
+      "defaultValue": "[concat(toUpper(uniqueString('exmmaster', parameters('passwordSalt'))), uniqueString('exmmaster', parameters('sqlServerPassword'), parameters('passwordSalt')), toUpper(uniqueString('exmmaster', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), '4@')]"
+    },
+    "exmMasterSqlDatabaseUserName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "exmmasteruser"
+    },
+    "formsSqlDatabaseName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-forms-db')]"
+    },
+    "formsSqlDatabasePassword": {
+      "type": "securestring",
+      "minLength": 8,
+      "defaultValue": "[concat(toUpper(uniqueString('forms', parameters('passwordSalt'))), uniqueString('forms', parameters('sqlServerPassword'), parameters('passwordSalt')), toUpper(uniqueString('forms', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), '4@')]"
+    },
+    "formsSqlDatabaseUserName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "formsuser"
+    },
     "infrastructure": {
       "type": "secureObject",
       "defaultValue": {
@@ -30,22 +129,107 @@
         "authCertificateThumbprint": null
       }
     },
-    "deploymentId": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().name]"
+    "licenseXml": {
+      "type": "securestring",
+      "minLength": 1
     },
     "location": {
       "type": "string",
       "minLength": 1,
       "defaultValue": "[resourceGroup().location]"
     },
+    "masterSqlDatabaseName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-master-db')]"
+    },
+    "masterSqlDatabasePassword": {
+      "type": "securestring",
+      "minLength": 8,
+      "defaultValue": "[concat(toUpper(uniqueString('master', parameters('passwordSalt'))), uniqueString('master', parameters('sqlServerPassword'), parameters('passwordSalt')), toUpper(uniqueString('master', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), '4@')]"
+    },
+    "masterSqlDatabaseUserName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "masteruser"
+    },
+    "messagingSqlDatabaseName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-messaging-db')]"
+    },
+    "messagingSqlDatabasePassword": {
+      "type": "securestring",
+      "minLength": 8,
+      "defaultValue": "[concat(toUpper(uniqueString('messaging', parameters('passwordSalt'))), uniqueString('messaging', parameters('sqlServerPassword'), parameters('passwordSalt')), toUpper(uniqueString('messaging', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), '4@')]"
+    },
+    "messagingSqlDatabaseUserName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "messaginguser"
+    },
+    "passwordSalt": {
+      "type": "securestring",
+      "minLength": 1,
+      "defaultValue": "[resourceGroup().id]"
+    },
+    "poolsSqlDatabaseName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-pools-db')]"
+    },
+    "poolsSqlDatabasePassword": {
+      "type": "securestring",
+      "minLength": 8,
+      "defaultValue": "[concat(toUpper(uniqueString('pools', parameters('passwordSalt'))), uniqueString('pools', parameters('sqlServerPassword'), parameters('passwordSalt')), toUpper(uniqueString('pools', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), '4@')]"
+    },
+    "poolsSqlDatabaseUserName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "poolsuser"
+    },
+    "redisCacheName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-redis')]"
+    },
+    "refDataSqlDatabaseName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-refdata-db')]"
+    },
+    "reportingSqlDatabaseName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-reporting-db')]"
+    },
+    "reportingSqlDatabasePassword": {
+      "type": "securestring",
+      "minLength": 8,
+      "defaultValue": "[concat(toUpper(uniqueString('reporting', parameters('passwordSalt'))), uniqueString('reporting', parameters('sqlServerPassword'), parameters('passwordSalt')), toUpper(uniqueString('reporting', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), '4@')]"
+    },
+    "reportingSqlDatabaseUserName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "reportinguser"
+    },
+    "searchServiceName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-as')]"
+    },
+    "singleMsDeployPackageUrl": {
+      "type": "securestring",
+      "minLength": 1
+    },
+    "singleWebAppName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-single')]"
+    },
     "sitecoreAdminPassword": {
       "type": "securestring",
       "minLength": 8
-    },
-    "licenseXml": {
-      "type": "securestring",
-      "minLength": 1
     },
     "sqlServerFqdn": {
       "type": "string",
@@ -59,222 +243,55 @@
       "type": "securestring",
       "minLength": 8
     },
-    "coreSqlDatabaseName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "[concat(parameters('deploymentId'), '-core-db')]"
-    },
-    "masterSqlDatabaseName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "[concat(parameters('deploymentId'), '-master-db')]"
-    },
-    "webSqlDatabaseName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "[concat(parameters('deploymentId'), '-web-db')]"
-    },
-    "reportingSqlDatabaseName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "[concat(parameters('deploymentId'), '-reporting-db')]"
-    },
-    "poolsSqlDatabaseName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "[concat(parameters('deploymentId'), '-pools-db')]"
-    },
     "tasksSqlDatabaseName": {
       "type": "string",
       "minLength": 1,
       "defaultValue": "[concat(parameters('deploymentId'), '-tasks-db')]"
-    },
-    "formsSqlDatabaseName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "[concat(parameters('deploymentId'), '-forms-db')]"
-    },
-    "exmMasterSqlDatabaseName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "[concat(parameters('deploymentId'), '-exmmaster-db')]"
-    },
-    "refDataSqlDatabaseName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "[concat(parameters('deploymentId'), '-refdata-db')]"
-    },
-    "messagingSqlDatabaseName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "[concat(parameters('deploymentId'), '-messaging-db')]"
-    },
-    "coreSqlDatabaseUserName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "coreuser"
-    },
-    "coreSqlDatabasePassword": {
-      "type": "securestring",
-      "minLength": 8,
-      "defaultValue": "[concat(toUpper(uniqueString('core', parameters('passwordSalt'))), uniqueString('core', parameters('sqlServerPassword'), parameters('passwordSalt')), toUpper(uniqueString('core', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), '4@')]"
-    },
-    "masterSqlDatabaseUserName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "masteruser"
-    },
-    "masterSqlDatabasePassword": {
-      "type": "securestring",
-      "minLength": 8,
-      "defaultValue": "[concat(toUpper(uniqueString('master', parameters('passwordSalt'))), uniqueString('master', parameters('sqlServerPassword'), parameters('passwordSalt')), toUpper(uniqueString('master', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), '4@')]"
-    },
-    "webSqlDatabaseUserName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "webuser"
-    },
-    "webSqlDatabasePassword": {
-      "type": "securestring",
-      "minLength": 8,
-      "defaultValue": "[concat(toUpper(uniqueString('web', parameters('passwordSalt'))), uniqueString('web', parameters('sqlServerPassword'), parameters('passwordSalt')), toUpper(uniqueString('web', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), '4@')]"
-    },
-    "reportingSqlDatabaseUserName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "reportinguser"
-    },
-    "reportingSqlDatabasePassword": {
-      "type": "securestring",
-      "minLength": 8,
-      "defaultValue": "[concat(toUpper(uniqueString('reporting', parameters('passwordSalt'))), uniqueString('reporting', parameters('sqlServerPassword'), parameters('passwordSalt')), toUpper(uniqueString('reporting', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), '4@')]"
-    },
-    "formsSqlDatabaseUserName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "formsuser"
-    },
-    "formsSqlDatabasePassword": {
-      "type": "securestring",
-      "minLength": 8,
-      "defaultValue": "[concat(toUpper(uniqueString('forms', parameters('passwordSalt'))), uniqueString('forms', parameters('sqlServerPassword'), parameters('passwordSalt')), toUpper(uniqueString('forms', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), '4@')]"
-    },
-    "exmMasterSqlDatabaseUserName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "exmmasteruser"
-    },
-    "exmMasterSqlDatabasePassword": {
-      "type": "securestring",
-      "minLength": 8,
-      "defaultValue": "[concat(toUpper(uniqueString('exmmaster', parameters('passwordSalt'))), uniqueString('exmmaster', parameters('sqlServerPassword'), parameters('passwordSalt')), toUpper(uniqueString('exmmaster', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), '4@')]"
-    },
-    "poolsSqlDatabaseUserName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "poolsuser"
-    },
-    "poolsSqlDatabasePassword": {
-      "type": "securestring",
-      "minLength": 8,
-      "defaultValue": "[concat(toUpper(uniqueString('pools', parameters('passwordSalt'))), uniqueString('pools', parameters('sqlServerPassword'), parameters('passwordSalt')), toUpper(uniqueString('pools', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), '4@')]"
-    },
-    "tasksSqlDatabaseUserName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "tasksuser"
     },
     "tasksSqlDatabasePassword": {
       "type": "securestring",
       "minLength": 8,
       "defaultValue": "[concat(toUpper(uniqueString('tasks', parameters('passwordSalt'))), uniqueString('tasks', parameters('sqlServerPassword'), parameters('passwordSalt')), toUpper(uniqueString('tasks', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), '4@')]"
     },
-    "xcRefDataSqlDatabaseUserName": {
+    "tasksSqlDatabaseUserName": {
       "type": "string",
       "minLength": 1,
-      "defaultValue": "xcrefdatauser"
-    },
-    "xcRefDataSqlDatabasePassword": {
-      "type": "securestring",
-      "minLength": 8,
-      "defaultValue": "[concat(toUpper(uniqueString('xcrefdata', parameters('passwordSalt'))), uniqueString('xcrefdata', parameters('sqlServerPassword'), parameters('passwordSalt')), toUpper(uniqueString('xcrefdata', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), '4@')]"
-    },
-    "messagingSqlDatabaseUserName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "messaginguser"
-    },
-    "messagingSqlDatabasePassword": {
-      "type": "securestring",
-      "minLength": 8,
-      "defaultValue": "[concat(toUpper(uniqueString('messaging', parameters('passwordSalt'))), uniqueString('messaging', parameters('sqlServerPassword'), parameters('passwordSalt')), toUpper(uniqueString('messaging', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), '4@')]"
-    },
-    "searchServiceName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "[concat(parameters('deploymentId'), '-as')]"
-    },
-    "applicationInsightsName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "[concat(parameters('deploymentId'), '-ai')]"
-    },
-    "singleWebAppName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "[concat(parameters('deploymentId'), '-single')]"
-    },
-    "xcSingleWebAppName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "[concat(parameters('deploymentId'), '-xc-single')]"
-    },
-    "authCertificateThumbprint": {
-      "type": "string",
-      "minLength": 8,
-      "defaultValue": "[parameters('infrastructure').authCertificateThumbprint]"
-    },
-    "singleMsDeployPackageUrl": {
-      "type": "securestring",
-      "minLength": 1
-    },
-    "disablePrefetchCachingMsDeployPackageUrl": {
-      "type": "securestring",
-      "minLength": 1,
-      "defaultValue": " "
-    },
-    "exmEdsProvider": {
-      "type": "string",
-      "minLength": 1,
-      "allowedValues": [
-        "CustomSMTP",
-        "EmailCloud"
-      ],
-      "defaultValue": "CustomSMTP"
-    },
-    "exmCryptographicKey": {
-      "type": "securestring",
-      "minLength": 64,
-      "defaultValue": "[toUpper(replace(concat(guid(uniqueString('exmCryptographicKey', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), guid(uniqueString('exmCryptographicKey', parameters('sqlServerPassword'), parameters('passwordSalt')))), '-',''))]"
-    },
-    "exmAuthenticationKey": {
-      "type": "securestring",
-      "minLength": 64,
-      "defaultValue": "[toUpper(replace(concat(guid(uniqueString('exmAuthenticationKey', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), guid(uniqueString('exmAuthenticationKey', parameters('sqlServerPassword'), parameters('passwordSalt')))), '-',''))]"
+      "defaultValue": "tasksuser"
     },
     "telerikEncryptionKey": {
       "type": "securestring",
       "minLength": 8,
       "defaultValue": "[concat(toUpper(uniqueString('telerik', parameters('passwordSalt'))), uniqueString('telerik', parameters('sqlServerPassword'), parameters('passwordSalt')), toUpper(uniqueString('telerik', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), '4@')]"
     },
-    "allowInvalidClientCertificates": {
-      "type": "bool",
-      "defaultValue": false
-    },
-    "passwordSalt": {
-      "type": "securestring",
+    "webSqlDatabaseName": {
+      "type": "string",
       "minLength": 1,
-      "defaultValue": "[resourceGroup().id]"
+      "defaultValue": "[concat(parameters('deploymentId'), '-web-db')]"
+    },
+    "webSqlDatabasePassword": {
+      "type": "securestring",
+      "minLength": 8,
+      "defaultValue": "[concat(toUpper(uniqueString('web', parameters('passwordSalt'))), uniqueString('web', parameters('sqlServerPassword'), parameters('passwordSalt')), toUpper(uniqueString('web', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), '4@')]"
+    },
+    "webSqlDatabaseUserName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "webuser"
+    },
+    "xcRefDataSqlDatabasePassword": {
+      "type": "securestring",
+      "minLength": 8,
+      "defaultValue": "[concat(toUpper(uniqueString('xcrefdata', parameters('passwordSalt'))), uniqueString('xcrefdata', parameters('sqlServerPassword'), parameters('passwordSalt')), toUpper(uniqueString('xcrefdata', parameters('sitecoreAdminPassword'), parameters('passwordSalt'))), '4@')]"
+    },
+    "xcRefDataSqlDatabaseUserName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "xcrefdatauser"
+    },
+    "xcSingleWebAppName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "[concat(parameters('deploymentId'), '-xc-single')]"
     }
   },
   "resources": [
@@ -353,6 +370,55 @@
       }
     },
     {
+      "name": "[concat(variables('cdWebAppNameTidy'), '/', 'MSDeploy')]",
+      "type": "Microsoft.Web/sites/extensions",
+      "location": "[parameters('location')]",
+      "apiVersion": "[variables('webApiVersion')]",
+      "dependsOn": [
+        "[concat('Microsoft.Web/sites/', variables('singleWebAppNameTidy'), '/Extensions/MSDeploy')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "addOnPackages": [
+          {
+            "packageUri": "[parameters('cdMsDeployPackageUrl')]",
+            "dbType": "SQL",
+            "connectionString": "[concat('Data Source=tcp:', variables('sqlServerFqdnTidy'), ',1433;Initial Catalog=master;User Id=', parameters('sqlServerLogin'), ';Password=', parameters('sqlServerPassword'), ';')]",
+            "setParameters": {
+              "Allow Invalid Client Certificates": "[parameters('allowInvalidClientCertificates')]",
+              "Application Insights Instrumentation Key": "[reference(resourceId('Microsoft.Insights/Components', variables('applicationInsightsNameTidy')), variables('applicationInsightsApiVersion')).InstrumentationKey]",
+              "Application Insights Role": "CD",
+              "Application Path": "[variables('cdWebAppNameTidy')]",
+              "Cloud Search Connection String": "[concat('serviceUrl=https://', variables('searchServiceNameTidy'), '.search.windows.net;apiVersion=', variables('searchPreviewApiVersion'), ';apiKey=', listAdminKeys(resourceId('Microsoft.Search/searchServices', variables('searchServiceNameTidy')), variables('searchApiVersion')).primaryKey)]",
+              "Core Connection String": "[concat('Encrypt=True;TrustServerCertificate=False;Data Source=', variables('sqlServerFqdnTidy'), ',1433;Initial Catalog=',variables('coreSqlDatabaseNameTidy'),';User Id=', parameters('coreSqlDatabaseUserName'), ';Password=', parameters('coreSqlDatabasePassword'), ';')]",
+              "EXM Authentication Key": "[parameters('exmAuthenticationKey')]",
+              "EXM Cryptographic Key": "[parameters('exmCryptographicKey')]",
+              "EXM Master Connection String": "[concat('Encrypt=True;TrustServerCertificate=False;Data Source=', variables('sqlServerFqdnTidy'), ',1433;Initial Catalog=',variables('exmMasterSqlDatabaseNameTidy'),';User Id=', parameters('exmMasterSqlDatabaseUserName'), ';Password=', parameters('exmMasterSqlDatabasePassword'), ';')]",
+              "Experience Forms Connection String": "[concat('Encrypt=True;TrustServerCertificate=False;Data Source=', variables('sqlServerFqdnTidy'), ',1433;Initial Catalog=',variables('formsSqlDatabaseNameTidy'),';User Id=', parameters('formsSqlDatabaseUserName'), ';Password=', parameters('formsSqlDatabasePassword'), ';')]",
+              "License Xml": "[parameters('licenseXml')]",
+              "Messaging Connection String": "[concat('Encrypt=True;TrustServerCertificate=False;Data Source=', variables('sqlServerFqdnTidy'), ',1433;Initial Catalog=',variables('messagingSqlDatabaseNameTidy'),';User Id=', parameters('messagingSqlDatabaseUserName'), ';Password=', parameters('messagingSqlDatabasePassword'), ';')]",
+              "Redis Sessions": "[concat(reference(resourceId('Microsoft.Cache/Redis', variables('redisCacheNameTidy')), variables('redisApiVersion')).hostName, ':', reference(resourceId('Microsoft.Cache/Redis', variables('redisCacheNameTidy')), variables('redisApiVersion')).sslPort, ',password=', listKeys(resourceId('Microsoft.Cache/Redis', variables('redisCacheNameTidy')), variables('redisApiVersion')).primaryKey, ',ssl=True,abortConnect=False')]",
+              "Reference Data Connection String": "[concat('Encrypt=True;TrustServerCertificate=False;Data Source=', variables('sqlServerFqdnTidy'), ',1433;Initial Catalog=',variables('refDataSqlDatabaseNameTidy'),';User Id=', parameters('xcRefDataSqlDatabaseUserName'), ';Password=', parameters('xcRefDataSqlDatabasePassword'), ';')]",
+              "Web Connection String": "[concat('Encrypt=True;TrustServerCertificate=False;Data Source=', variables('sqlServerFqdnTidy'), ',1433;Initial Catalog=',variables('webSqlDatabaseNameTidy'),';User Id=', parameters('webSqlDatabaseUserName'), ';Password=', parameters('webSqlDatabasePassword'), ';')]",
+              "XConnect Collection": "[concat('https://', reference(resourceId(subscription().subscriptionId, resourceGroup().name, 'Microsoft.Web/sites', variables('xcSingleWebAppNameTidy')), variables('webApiVersion')).hostNames[0])]",
+              "XConnect Collection Certificate": "[concat('StoreName=My;StoreLocation=CurrentUser;FindType=FindByThumbprint;FindValue=', parameters('authCertificateThumbprint'))]",
+              "XDB MA Ops Client": "[concat('https://', reference(resourceId(subscription().subscriptionId, resourceGroup().name, 'Microsoft.Web/sites', variables('xcSingleWebAppNameTidy')), variables('webApiVersion')).hostNames[0])]",
+              "XDB MA Ops Client Certificate": "[concat('StoreName=My;StoreLocation=CurrentUser;FindType=FindByThumbprint;FindValue=', parameters('authCertificateThumbprint'))]",
+              "XDB Reference Data Connection String": "[concat('Encrypt=True;TrustServerCertificate=False;Data Source=', variables('sqlServerFqdnTidy'), ',1433;Initial Catalog=',variables('refDataSqlDatabaseNameTidy'),';User Id=', parameters('xcRefDataSqlDatabaseUserName'), ';Password=', parameters('xcRefDataSqlDatabasePassword'), ';')]",
+              "XDB Reference Data Client": "[concat('https://', reference(resourceId(subscription().subscriptionId, resourceGroup().name, 'Microsoft.Web/sites', variables('xcSingleWebAppNameTidy')), variables('webApiVersion')).hostNames[0])]",
+              "XDB Reference Data Client Certificate": "[concat('StoreName=My;StoreLocation=CurrentUser;FindType=FindByThumbprint;FindValue=', parameters('authCertificateThumbprint'))]"
+            }
+          },
+          {
+            "packageUri": "[parameters('disablePrefetchCachingMsDeployPackageUrl')]",
+            "setParameters": {
+              "Application Path": "[variables('cdWebAppNameTidy')]"
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "[concat(variables('singleWebAppNameTidy'), '/', 'appsettings')]",
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "[variables('webApiVersion')]",
@@ -362,6 +428,18 @@
       },
       "dependsOn": [
         "[concat('Microsoft.Web/Sites/', variables('singleWebAppNameTidy'), '/Extensions/MSDeploy')]"
+      ]
+    },
+    {
+      "name": "[concat(variables('cdWebAppNameTidy'), '/', 'appsettings')]",
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "[variables('webApiVersion')]",
+      "properties": {
+        "WEBSITE_LOAD_CERTIFICATES": "[parameters('authCertificateThumbprint')]",
+        "WEBSITE_DYNAMIC_CACHE": 0
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites/extensions', variables('cdWebAppNameTidy'),'MSDeploy')]"
       ]
     }
   ]

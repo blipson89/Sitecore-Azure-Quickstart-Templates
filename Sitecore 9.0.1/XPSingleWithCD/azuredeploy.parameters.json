@@ -20,6 +20,9 @@
     "sqlServerPassword": {
       "value": ""
     },
+    "cdMsDeployPackageUrl": {
+      "value": ""
+    },
     "singleMsDeployPackageUrl": {
       "value": ""
     },
