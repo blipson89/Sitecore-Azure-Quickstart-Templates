@@ -404,7 +404,6 @@
               "XConnect Collection Certificate": "[concat('StoreName=My;StoreLocation=CurrentUser;FindType=FindByThumbprint;FindValue=', parameters('authCertificateThumbprint'))]",
               "XDB MA Ops Client": "[concat('https://', reference(resourceId(subscription().subscriptionId, resourceGroup().name, 'Microsoft.Web/sites', variables('xcSingleWebAppNameTidy')), variables('webApiVersion')).hostNames[0])]",
               "XDB MA Ops Client Certificate": "[concat('StoreName=My;StoreLocation=CurrentUser;FindType=FindByThumbprint;FindValue=', parameters('authCertificateThumbprint'))]",
-              "XDB Reference Data Connection String": "[concat('Encrypt=True;TrustServerCertificate=False;Data Source=', variables('sqlServerFqdnTidy'), ',1433;Initial Catalog=',variables('refDataSqlDatabaseNameTidy'),';User Id=', parameters('xcRefDataSqlDatabaseUserName'), ';Password=', parameters('xcRefDataSqlDatabasePassword'), ';')]",
               "XDB Reference Data Client": "[concat('https://', reference(resourceId(subscription().subscriptionId, resourceGroup().name, 'Microsoft.Web/sites', variables('xcSingleWebAppNameTidy')), variables('webApiVersion')).hostNames[0])]",
               "XDB Reference Data Client Certificate": "[concat('StoreName=My;StoreLocation=CurrentUser;FindType=FindByThumbprint;FindValue=', parameters('authCertificateThumbprint'))]"
             }
