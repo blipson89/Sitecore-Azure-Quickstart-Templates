@@ -323,16 +323,6 @@
       "minLength": 1,
       "defaultValue": "[concat(parameters('deploymentId'), '-cd-hp')]"
     },
-    "prcHostingPlanName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "[concat(parameters('deploymentId'), '-prc-hp')]"
-    },
-    "repHostingPlanName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "[concat(parameters('deploymentId'), '-rep-hp')]"
-    },
     "xcBasicHostingPlanName": {
       "type": "string",
       "minLength": 1,
@@ -357,16 +347,6 @@
       "type": "string",
       "minLength": 1,
       "defaultValue": "[concat(parameters('deploymentId'), '-cd')]"
-    },
-    "prcWebAppName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "[concat(parameters('deploymentId'), '-prc')]"
-    },
-    "repWebAppName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "[concat(parameters('deploymentId'), '-rep')]"
     },
     "xcRefDataWebAppName": {
       "type": "string",
@@ -402,12 +382,6 @@
       "type": "securestring"
     },
     "cdMsDeployPackageUrl": {
-      "type": "securestring"
-    },
-    "prcMsDeployPackageUrl": {
-      "type": "securestring"
-    },
-    "repMsDeployPackageUrl": {
       "type": "securestring"
     },
     "xcRefDataMsDeployPackageUrl": {
@@ -610,24 +584,12 @@
           "cdHostingPlanName": {
             "value": "[parameters('cdHostingPlanName')]"
           },
-          "prcHostingPlanName": {
-            "value": "[parameters('prcHostingPlanName')]"
-          },
-          "repHostingPlanName": {
-            "value": "[parameters('repHostingPlanName')]"
-          },
 
           "cmWebAppName": {
             "value": "[parameters('cmWebAppName')]"
           },
           "cdWebAppName": {
             "value": "[parameters('cdWebAppName')]"
-          },
-          "prcWebAppName": {
-            "value": "[parameters('prcWebAppName')]"
-          },
-          "repWebAppName": {
-            "value": "[parameters('repWebAppName')]"
           },
 
           "authCertificateName": {
@@ -931,12 +893,6 @@
           "cdWebAppName": {
             "value": "[parameters('cdWebAppName')]"
           },
-          "prcWebAppName": {
-            "value": "[parameters('prcWebAppName')]"
-          },
-          "repWebAppName": {
-            "value": "[parameters('repWebAppName')]"
-          },
           "xcCollectWebAppName": {
             "value": "[parameters('xcCollectWebAppName')]"
           },
@@ -958,12 +914,6 @@
           },
           "cdMsDeployPackageUrl": {
             "value": "[parameters('cdMsDeployPackageUrl')]"
-          },
-          "prcMsDeployPackageUrl": {
-            "value": "[parameters('prcMsDeployPackageUrl')]"
-          },
-          "repMsDeployPackageUrl": {
-            "value": "[parameters('repMsDeployPackageUrl')]"
           },
           "disablePrefetchCachingMsDeployPackageUrl": {
             "value": "[parameters('disablePrefetchCachingMsDeployPackageUrl')]"
@@ -1360,12 +1310,6 @@
           "cmWebAppName": {
             "value": "[parameters('cmWebAppName')]"
           },
-          "prcWebAppName": {
-            "value": "[parameters('prcWebAppName')]"
-          },
-          "repWebAppName": {
-            "value": "[parameters('repWebAppName')]"
-          },
           "xcSearchWebAppName": {
             "value": "[parameters('xcSearchWebAppName')]"
           },
@@ -1508,15 +1452,11 @@
 
               "cmHostingPlanName": "[parameters('cmHostingPlanName')]",
               "cdHostingPlanName": "[parameters('cdHostingPlanName')]",
-              "prcHostingPlanName": "[parameters('prcHostingPlanName')]",
-              "repHostingPlanName": "[parameters('repHostingPlanName')]",
               "xcBasicHostingPlanName": "[parameters('xcBasicHostingPlanName')]",
               "xcResourceIntensiveHostingPlanName": "[parameters('xcResourceIntensiveHostingPlanName')]",
 
               "cmWebAppName": "[parameters('cmWebAppName')]",
               "cdWebAppName": "[parameters('cdWebAppName')]",
-              "prcWebAppName": "[parameters('prcWebAppName')]",
-              "repWebAppName": "[parameters('repWebAppName')]",
               "xcRefDataWebAppName": "[parameters('xcRefDataWebAppName')]",
               "xcCollectWebAppName": "[parameters('xcCollectWebAppName')]",
               "xcSearchWebAppName": "[parameters('xcSearchWebAppName')]",
