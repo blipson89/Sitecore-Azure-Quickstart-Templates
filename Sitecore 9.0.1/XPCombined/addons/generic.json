@@ -11,9 +11,7 @@
     "reportingSqlDatabaseNameTidy": "[trim(toLower(parameters('reportingSqlDatabaseName')))]",
     
     "cmWebAppNameTidy": "[trim(toLower(parameters('cmWebAppName')))]",
-    "cdWebAppNameTidy": "[trim(toLower(parameters('cdWebAppName')))]",
-    "prcWebAppNameTidy": "[trim(toLower(parameters('prcWebAppName')))]",
-    "repWebAppNameTidy": "[trim(toLower(parameters('repWebAppName')))]"
+    "cdWebAppNameTidy": "[trim(toLower(parameters('cdWebAppName')))]"
   },
   "parameters": {
     "standard": {
